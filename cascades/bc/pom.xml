@@ -14,13 +14,13 @@
   <name>bc</name>
 
   <groupId>com.guidewire.etl</groupId>
-  <artifactId>cascades-bc</artifactId>
+  <artifactId>bc</artifactId>
   <version>0.1</version>
 
   <dependencies>
     <dependency>
       <groupId>com.guidewire.etl</groupId>
-      <artifactId>cascades-common</artifactId>
+      <artifactId>common</artifactId>
       <version>0.1</version>
     </dependency>
     <dependency>

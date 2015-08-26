@@ -14,7 +14,7 @@
   <name>driver</name>
 
   <groupId>com.guidewire.etl</groupId>
-  <artifactId>etl-driver</artifactId>
+  <artifactId>driver</artifactId>
   <version>0.1</version>
 
   <dependencies>
