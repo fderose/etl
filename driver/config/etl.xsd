@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <xsd:element name="etl">
+        <xsd:complexType>
+            <xsd:sequence minOccurs="1" maxOccurs="1">
+                <xsd:element ref="db" minOccurs="1" maxOccurs="unbounded"/>
+                <xsd:element ref="import" minOccurs="1" maxOccurs="unbounded"/>
+                <xsd:element ref="cascade" minOccurs="1" maxOccurs="1"/>
+                <xsd:element ref="export" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute name="sqoop_user_classpath" type="xsd:string" use="optional"/>
+            <xsd:attribute name="hadoop_classpath" type="xsd:string" use="optional"/>
+            <xsd:attribute name="workdir" type="xsd:string" use="required"/>
+            <xsd:attribute name="numSqoopThreads" type="xsd:int" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="db">
+        <xsd:complexType>
+            <xsd:attribute name="id" type="xsd:ID" use="required"/>
+            <xsd:attribute name="url" type="xsd:string" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="import">
+        <xsd:complexType>
+            <xsd:sequence minOccurs="1" maxOccurs="1">
+                <xsd:element name="db" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute name="id" type="xsd:string" use="required"/>
+            <xsd:attribute name="fieldDelimiter" type="xsd:string" use="optional" default="\t"/>
+            <xsd:attribute name="query" type="xsd:string" use="required"/>
+            <xsd:attribute name="splitBy" type="xsd:string" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="cascade">
+        <xsd:complexType>
+            <xsd:sequence minOccurs="1" maxOccurs="1">
+                <xsd:element name="arg" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute name="id" type="xsd:string" use="required"/>
+            <xsd:attribute name="class" type="xsd:string" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="export">
+        <xsd:complexType>
+            <xsd:attribute name="id" type="xsd:string" use="required"/>
+            <xsd:attribute name="db" type="xsd:IDREF" use="required"/>
+            <xsd:attribute name="fieldDelimiter" type="xsd:string" use="optional" default="\t"/>
+            <xsd:attribute name="table" type="xsd:string" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+
+</xsd:schema>

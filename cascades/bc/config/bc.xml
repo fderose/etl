@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+
+<etl xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../config/etl.xsd"
+     sqoop_user_classpath="../../../../../libs/hsqldb-2.0.0.jar:../../../../../libs/ojdbc6-0.jar"
+     hadoop_classpath="../../../../libs/cascades-bc-0.1.jar:../../../../libs/cascading-hadoop-2.1.6.jar:../../../../libs/commons-compiler-2.6.1.jar:../../../../libs/guava-13.0.jar:../../../../libs/jgrapht-jdk1.6-0.8.1.jar:../../../../libs/slf4j-api-1.6.1.jar:../../../../libs/cascades-common-0.1.jar:../../../../libs/cascading-local-2.1.6.jar:../../../../libs/commons-io-2.4.jar:../../../../libs/hsqldb-2.0.0.jar:../../../../libs/ojdbc6-0.jar:../../../../libs/tagsoup-1.2.jar:../../../../libs/cascading-core-2.1.6.jar:../../../../libs/cascading-xml-2.1.6.jar:../../../../libs/etl-driver-0.1.jar:../../../../libs/janino-2.6.1.jar:../../../../libs/riffle-0.1-dev.jar"
+     workdir="workdir"
+     numSqoopThreads="6">
+
+  <!-- Define the databases from which data will be imported and to which data will be exported -->
+  <db id="db1" url="jdbc:oracle:thin:mktg/cc@//dora21:1521/ClaimCtr"/>
+  <db id="db2" url="jdbc:oracle:thin:mktg/cc@//dora21:1521/ClaimCtr"/>
+  <db id="db3" url="jdbc:oracle:thin:mktg/cc@//dora21:1521/ClaimCtr"/>
+
+  <!-- Define the imports -->
+  <import id="headers" fieldDelimiter="\t" query="select * from (select prod.publicid as ProducerPublicId, stmt.statementdate as StatementDate, stmt.previousbalance as PreviousBalance from bc_producerstatement stmt inner join bc_producer prod on prod.id = stmt.producerid where stmt.statementdate = to_date('14-MAR-2012')) t where \$CONDITIONS" splitBy="ProducerPublicId">
+    <db>db1</db>
+    <db>db2</db>
+  </import>
+  <import id="activities" fieldDelimiter="\t" query="select * from (select prod.publicid as ProducerPublicId, stmt.statementdate as StatementDate,  per.policynumberlong as PolicyNumber, acct.accountnumber as AccountNumber, evt.eventdate as ItemEventDate, evttype.name as Event, it.name as InvoiceItemType, chg.id as ChargeId, chg.chargedate as EventDate, chg.amount as BasisAmt, pat.chargename as ChargeName, txn.id as TransactionId, txn.amount as TransactionAmt from bc_itemevent evt inner join bctl_itemeventtype evttype ON evttype.id = evt.eventtype inner join bc_transaction txn on txn.id = evt.transactionid inner join bc_producercontext ctx on ctx.transactionid = txn.id inner join bc_producerstatement stmt on stmt.id = ctx.statementid inner join bctl_itemeventtype evttype on evttype.id = evt.eventtype inner join bc_policycommission cmsn on cmsn.id = evt.policycommissionid inner join bc_policyperiod per on per.id = cmsn.policyperiodid inner join bc_invoiceitem ii on ii.id = evt.invoiceitemid inner join bctl_invoiceitemtype it on it.id = ii.type inner join bc_charge chg on chg.id = ii.chargeid inner join bc_chargepattern pat on pat.id = chg.chargepatternid inner join bc_policy pol on pol.id = per.policyid inner join bc_account acct on acct.id = pol.accountid inner join bc_producer prod on prod.id = ctx.producerid and evttype.typecode IN ('earned', 'commissionMovedFrom', 'commissionMovedTo') and stmt.statementdate = to_date('14-MAR-2012')) t where \$CONDITIONS" splitBy="ProducerPublicId">
+    <db>db1</db>
+    <db>db2</db>
+  </import>
+  <import id="payments" fieldDelimiter="\t" query="select * from (select prod.publicid as ProducerPublicId, stmt.statementdate as StatementDate, per.PolicyNumberLong as PolicyNumber, ctxtype.name as Context, txn.amount as TransactionAmount, txn.transactiondate as TransactionDate, txn.transactionnumber as TransactionNumber from bc_transaction txn inner join bc_producercontext ctx ON ctx.transactionid = txn.id inner join bctl_producercontext ctxtype ON ctxtype.id = ctx.subtype inner join bc_producerstatement stmt on stmt.id = ctx.statementid inner join bc_producer prod on prod.id = ctx.producerid left join bc_policycommission cmsn on cmsn.id = ctx.policycommissionid left join bc_policyperiod per on per.id = cmsn.policyperiodid where txn.subtype IN (71, 72) and stmt.statementdate = to_date('14-MAR-2012')) t where \$CONDITIONS" splitBy="ProducerPublicId">
+    <db>db1</db>
+    <db>db2</db>
+  </import>
+
+  <!-- Define the cascades -->
+  <cascade id="aggregate" class="cascade/Main">
+    <arg>headers</arg>
+    <arg>activities</arg>
+    <arg>payments</arg>
+  </cascade>
+
+  <!-- Define the exports -->
+  <export id="headers" db="db3" fieldDelimiter="\t" table="BCAS_PRODUCERSTMTHEADER"/>
+  <export id="activities" db="db3" fieldDelimiter="\t" table="BCAS_ACTIVITIES"/>
+  <export id="payments" db="db3" fieldDelimiter="\t" table="BCAS_PAYMENTS"/>
+
+</etl>

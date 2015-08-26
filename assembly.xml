@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+   
+  <id>gw-etl</id>
+
+  <formats>
+     <format>zip</format>
+  </formats>
+
+  <moduleSets>
+    <moduleSet>
+      <binaries>
+        <outputDirectory>libs</outputDirectory>
+        <includeDependencies>true</includeDependencies>
+        <unpack>false</unpack>
+      </binaries>
+    </moduleSet>
+  </moduleSets>
+
+  <dependencySets>
+    <dependencySet>
+      <includes>
+        <include>*:jar</include>
+      </includes>
+      <outputDirectory>libs</outputDirectory>
+    </dependencySet>
+  </dependencySets>
+
+  <fileSets>
+    <fileSet>
+      <directory>cascades/bc/target/sql</directory>
+      <includes>
+        <include>*.sql</include>
+      </includes>
+      <outputDirectory>sql</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>cascades/bc/target/config</directory>
+      <includes>
+        <include>*.xml</include>
+      </includes>
+      <outputDirectory>config</outputDirectory>
+    </fileSet>
+  </fileSets>
+
+  <files>
+    <file>
+      <source>driver/target/config/etl.xsd</source>
+      <outputDirectory>config</outputDirectory>
+    </file>
+    <file>
+      <source>driver/target/bin/driver.sh</source>
+      <outputDirectory>bin</outputDirectory>
+      <fileMode>755</fileMode>
+    </file>
+    <file>
+      <source>libs/ojdbc6-0.jar</source>
+      <outputDirectory>libs</outputDirectory>
+    </file>
+  </files>
+
+</assembly>
